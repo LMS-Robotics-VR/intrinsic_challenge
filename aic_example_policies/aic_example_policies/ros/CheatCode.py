@@ -154,9 +154,9 @@ class CheatCode(Policy):
                 self._max_integrator_windup,
             )
 
-        self.get_logger().info(
-            f"pfrac: {position_fraction:.3} xy_error: {tip_x_error:0.3} {tip_y_error:0.3}   integrators: {self._tip_x_error_integrator:.3} , {self._tip_y_error_integrator:.3}"
-        )
+        # self.get_logger().info(
+        #     f"pfrac: {position_fraction:.3} xy_error: {tip_x_error:0.3} {tip_y_error:0.3}   integrators: {self._tip_x_error_integrator:.3} , {self._tip_y_error_integrator:.3}"
+        # )
 
         i_gain = 0.15
 
