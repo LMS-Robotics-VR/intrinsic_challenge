@@ -17,8 +17,8 @@ def generate_procedural_trial(cable_id_num):
         'x': round(random.uniform(0.10, 0.26), 4),
         'y': round(random.uniform(-0.30, 0.15), 4),
         'z': round(random.uniform(1.135, 1.145), 4), # Slight height variations
-        'roll': round(random.uniform(-0.05, 0.05), 4), # Simulate unlevel table
-        'pitch': round(random.uniform(-0.05, 0.05), 4),
+        'roll': 0.0,
+        'pitch': 0.0,
         'yaw': round(random.uniform(2.5, 3.8), 4) # Wide yaw arc
     }
 
@@ -220,8 +220,18 @@ def compile_dashboard(results_dir, batch_number, master_csv_path, batch_config, 
         
         valid_keywords = ['tier', 'score', 'penalty', 'duration', 'smoothness', 'jerk', 'efficiency', 'force']
         clean_scores = {}
+        
         for k, v in flat_scoring.items():
             kl = k.lower()
+            
+            if 'max' in kl and 'force' in kl:
+                clean_scores['tier_2_max_force_detected'] = str(v)
+                continue
+                
+            if 'distance' in kl:
+                clean_scores['tier_2_final_distance'] = str(v)
+                continue
+                
             if any(word in kl for word in valid_keywords) and 'message' not in kl:
                 if isinstance(v, (int, float)):
                     max_val = None
@@ -315,7 +325,6 @@ def generate_high_level_summary(master_csv_path, dashboard_dir):
         return
 
     success_rate = (successes / total_trials) * 100.0
-    median_total = statistics.median(total_scores) if total_scores else 0.0
 
     summary_text = (
         f"\n{'='*55}\n"
@@ -323,7 +332,6 @@ def generate_high_level_summary(master_csv_path, dashboard_dir):
         f"{'='*55}\n"
         f"Total Procedural Trials: {total_trials}\n"
         f"Overall Success Rate:    {success_rate:.2f}% ({successes}/{total_trials})\n"
-        f"Median Total Score:      {median_total:.2f}%\n"
         f"{'='*55}\n"
     )
 

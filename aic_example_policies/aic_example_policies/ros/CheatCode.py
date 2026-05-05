@@ -60,6 +60,7 @@ class CheatCode(Policy):
         position_fraction: float = 1.0,
         z_offset: float = 0.1,
         reset_xy_integrator: bool = False,
+        freeze_integrator: bool = False,
     ) -> Pose:
         q_port = (port_transform.rotation.w, port_transform.rotation.x,
                   port_transform.rotation.y, port_transform.rotation.z)
@@ -89,8 +90,9 @@ class CheatCode(Policy):
         tip_gripper_z_offset = gripper_xyz[2] - plug_xyz[2]
 
         if reset_xy_integrator:
-            self._tip_x_error_integrator = self._tip_y_error_integrator = 0.0
-        else:
+            self._tip_x_error_integrator = 0.0
+            self._tip_y_error_integrator = 0.0
+        elif not freeze_integrator:
             self._tip_x_error_integrator = np.clip(self._tip_x_error_integrator + (port_xy[0] - plug_xyz[0]), 
                                                    -self._max_integrator_windup, self._max_integrator_windup)
             self._tip_y_error_integrator = np.clip(self._tip_y_error_integrator + (port_xy[1] - plug_xyz[1]), 
@@ -123,7 +125,7 @@ class CheatCode(Policy):
         if task.port_type == "sc":
             final_insertion_depth = -0.008
         else:
-            final_insertion_depth = -0.014
+            final_insertion_depth = -0.012
 
         clearance_z = 0.25
 
@@ -156,7 +158,7 @@ class CheatCode(Policy):
             self.sleep_for(0.04)
 
         self.get_logger().info("Stabilizing...")
-        self.sleep_for(0.5) 
+        self.sleep_for(5.0) 
         
         self.get_logger().info("Task complete.")
         return True
