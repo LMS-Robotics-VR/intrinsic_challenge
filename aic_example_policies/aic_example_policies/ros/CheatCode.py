@@ -121,7 +121,6 @@ class CheatCode(Policy):
 
         port_transform = self._parent_node._tf_buffer.lookup_transform("base_link", port_frame, Time()).transform
 
-        # Check port_type to know physically when to stop pushing.
         if task.port_type == "sc":
             final_insertion_depth = -0.008
         else:
@@ -130,7 +129,7 @@ class CheatCode(Policy):
         clearance_z = 0.25
 
         # --- Fast Traverse ---
-        steps_traverse = 60 # Reduced steps to speed up the fly-over
+        steps_traverse = 60
         for t in range(1, steps_traverse + 1):
             frac = self._ease_in_out(t / float(steps_traverse))
             try:
@@ -138,7 +137,7 @@ class CheatCode(Policy):
                     port_transform, slerp_fraction=frac, position_fraction=frac, 
                     z_offset=clearance_z, reset_xy_integrator=True))
             except TransformException: pass
-            self.sleep_for(0.04) # Faster control loop rate
+            self.sleep_for(0.04)
 
         # The Two-Stage Drop
         z_offset = clearance_z
@@ -155,10 +154,10 @@ class CheatCode(Policy):
                 self.set_pose_target(move_robot=move_robot, pose=self.calc_gripper_pose(
                     port_transform, z_offset=z_offset, reset_xy_integrator=False))
             except TransformException: pass
-            self.sleep_for(0.04)
+            self.sleep_for(0.05)
 
         self.get_logger().info("Stabilizing...")
-        self.sleep_for(5.0) 
+        self.sleep_for(10.0) 
         
         self.get_logger().info("Task complete.")
         return True
